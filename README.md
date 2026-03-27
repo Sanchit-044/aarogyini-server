@@ -1,6 +1,6 @@
 # Menstrual Health Monitoring – Backend API
 
-Node.js + Express + TypeScript backend with MongoDB and Redis, fully Dockerised.
+Node.js + Express + TypeScript backend with MongoDB and Redis, fully Dockerised..
 
 ---
 
