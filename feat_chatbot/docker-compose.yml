@@ -1,0 +1,74 @@
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Aarogyini – Unified Docker Compose
+#
+# Service map:
+#   gateway  → port 8000  ← Flutter's ONLY entry point
+#   chatbot  → port 8001  (internal only)
+#   tracker  → port 8002  (internal only)
+#
+# Before running:
+#   1. Copy services/chatbot/.env.example → services/chatbot/.env
+#   2. Set LLM_PROVIDER, OLLAMA_BASE_URL (your LAN IP), OLLAMA_MODEL
+#      OR set OPENAI_API_KEY if using OpenAI
+#   3. docker-compose up --build
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── API Gateway ──────────────────────────────────────────────────────
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - CHATBOT_URL=http://chatbot:8001
+      - TRACKER_URL=http://tracker:8002
+    depends_on:
+      - chatbot
+      - tracker
+    networks:
+      - aarogyini_net
+    restart: unless-stopped
+
+  # ── Chatbot Service ──────────────────────────────────────────────────
+  chatbot:
+    build:
+      context: ./services/chatbot
+      dockerfile: Dockerfile
+    expose:
+      - "8001"
+    # All config comes from services/chatbot/.env — nothing is hardcoded
+    # here so your .env values are never silently overridden.
+    env_file:
+      - ./services/chatbot/.env
+    networks:
+      - aarogyini_net
+    restart: unless-stopped
+
+  # ── Period Tracker Service ───────────────────────────────────────────
+  tracker:
+    build:
+      context: ./services/tracker
+      dockerfile: Dockerfile
+    expose:
+      - "8002"
+    environment:
+      - DATA_DIR=/data
+    volumes:
+      - tracker_data:/data
+    networks:
+      - aarogyini_net
+    restart: unless-stopped
+
+# ── Named volumes ────────────────────────────────────────────────────
+volumes:
+  tracker_data:       # persists profile.json and logs.json across restarts
+
+# ── Internal network ─────────────────────────────────────────────────
+networks:
+  aarogyini_net:
+    driver: bridge
