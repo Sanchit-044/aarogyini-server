@@ -9,7 +9,7 @@ from typing import List
 
 class Settings(BaseSettings):
     # LLM Configuration
-    OPENAI_API_KEY: str = "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"
+    OPENAI_API_KEY: str = ""
     LLM_PROVIDER: str = "openai"           # "openai" | "ollama"
     OPENAI_MODEL: str = "gpt-4o-mini"
     OLLAMA_BASE_URL: str = "http://localhost:11434"
